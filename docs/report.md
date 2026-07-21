@@ -279,7 +279,7 @@ Zaharia, M., Xin, R. S., Wendell, P., et al. (2016). Apache Spark: A unified eng
 
 ## 11. Appendices
 
-* **Appendix A — GitHub repository:** _[repository URL]_ (all code, config, README, requirements, SQL dump, documentation).
+* **Appendix A — GitHub repository:** https://github.com/yaseengiri001/bus-service-reliability-bigdata (all code, config, README, requirements, SQL dump, documentation).
 * **Appendix B — Execution evidence:** `docs/screenshots/exec_01–03_*.png` (ingestion, ML, database + security console output); `docs/screenshots/spark_ui_01–05_*.png` (Spark UI Jobs, Stages, Storage, Executors, SQL).
 * **Appendix C — Additional figures:** `outputs/figures/fig01–fig15` (distributions, correlations, confusion matrix, feature importance, predicted-vs-actual, residuals).
 * **Appendix D — Database:** `database/schema.sql`, `database/sample_queries.sql`, `database/bus_reliability_sample_dump.sql`.
