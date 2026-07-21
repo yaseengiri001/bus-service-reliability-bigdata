@@ -1,0 +1,31 @@
+{
+  "task": "regression_delay_minutes",
+  "n_rows": 1039711,
+  "results": [
+    {
+      "model": "LinearRegression",
+      "rmse": 16.42068894362301,
+      "mae": 11.925623405113381,
+      "r2": 0.3588034813523121,
+      "train_seconds": 4.81,
+      "model_efficiency_rmse_per_s": 3.412
+    },
+    {
+      "model": "RandomForestRegressor",
+      "rmse": 14.192163582336786,
+      "mae": 10.044280959816293,
+      "r2": 0.521032965482952,
+      "train_seconds": 72.36,
+      "model_efficiency_rmse_per_s": 0.196
+    },
+    {
+      "model": "GBTRegressor",
+      "rmse": 14.336983030116349,
+      "mae": 9.941998037830727,
+      "r2": 0.5112081574151304,
+      "train_seconds": 21.57,
+      "model_efficiency_rmse_per_s": 0.665
+    }
+  ],
+  "best_model": "RandomForestRegressor"
+}

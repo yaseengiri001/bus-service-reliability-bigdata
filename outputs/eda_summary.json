@@ -1,0 +1,102 @@
+{
+  "n_rows": 1167832,
+  "null_counts": {
+    "busbreakdown_id": 0,
+    "school_year": 0,
+    "year": 0,
+    "month": 0,
+    "day_of_week": 0,
+    "hour": 0,
+    "time_band": 0,
+    "season": 0,
+    "is_weekend": 0,
+    "operator": 0,
+    "operator_id": 0,
+    "boro": 19993,
+    "boro_id": 19993,
+    "run_type": 16,
+    "reason": 18009,
+    "reason_id": 18009,
+    "school_age": 0,
+    "students_on_bus": 0,
+    "notified_schools": 0,
+    "notified_parents": 0,
+    "alerted_opt": 0,
+    "delay_minutes": 128121,
+    "on_time": 0,
+    "incident_type": 0,
+    "is_breakdown": 0,
+    "occurred_ts": 0
+  },
+  "cardinality": {
+    "operator": 219,
+    "boro": 13,
+    "reason": 11,
+    "run_type": 11,
+    "time_band": 4,
+    "season": 4,
+    "school_year": 18,
+    "incident_type": 2
+  },
+  "stats": {
+    "delay_minutes": {
+      "mean": 32.846961319058856,
+      "std": 20.52989202621947,
+      "min": 0.0,
+      "max": 180.0,
+      "skew": 0.9992660829613386,
+      "kurt": 2.3225450460943806,
+      "q25": 22.5,
+      "median": 30.0,
+      "q75": 38.0
+    },
+    "students_on_bus": {
+      "mean": 3.321788579179197,
+      "std": 65.08801916240535,
+      "min": 0.0,
+      "max": 9972.0,
+      "skew": 94.77196432110966,
+      "kurt": 10931.78334221264,
+      "q25": 0.0,
+      "median": 0.0,
+      "q75": 3.0
+    },
+    "hour": {
+      "mean": 8.119920502264025,
+      "std": 3.0391407064720397,
+      "min": 0.0,
+      "max": 23.0,
+      "skew": 1.298925894814522,
+      "kurt": 0.44242860680338714,
+      "q25": 6.0,
+      "median": 7.0,
+      "q75": 8.0
+    }
+  },
+  "class_balance": {
+    "Running Late": 1056045,
+    "Breakdown": 111787
+  },
+  "breakdown_rate": 0.09572181615163824,
+  "on_time_rate": 0.15134283013310135,
+  "outliers": {
+    "delay_minutes": {
+      "col": "delay_minutes",
+      "q1": 22.5,
+      "q3": 38.0,
+      "iqr": 15.5,
+      "lower": -0.75,
+      "upper": 61.25,
+      "n_outliers": 102237
+    },
+    "students_on_bus": {
+      "col": "students_on_bus",
+      "q1": 0.0,
+      "q3": 3.0,
+      "iqr": 3.0,
+      "lower": -4.5,
+      "upper": 7.5,
+      "n_outliers": 115371
+    }
+  }
+}

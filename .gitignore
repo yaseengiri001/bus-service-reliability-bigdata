@@ -1,0 +1,31 @@
+# ── Python ────────────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# ── Spark ─────────────────────────────────────────────────
+spark-warehouse/
+metastore_db/
+derby.log
+*.crc
+_SUCCESS
+
+# ── Large raw data (documented download in README; a sample is committed) ──
+data/raw/*.csv
+data/processed/*.parquet
+data/processed/*/           # parquet part-directories
+
+# ── Saved Spark models (large binaries) ───────────────────
+outputs/models/*/
+
+# ── Large SQLite DB (regenerable; a sample dump is committed) ──
+database/*.db
+database/bus_reliability_dump.sql
+
+# ── OS ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+docs/report.html
