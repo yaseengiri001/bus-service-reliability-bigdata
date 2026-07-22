@@ -1,12 +1,12 @@
 """
 Stage 5 — Regression: Delay-minutes prediction  (Spark MLlib)
 =============================================================
-Business question: how many minutes will a reported delay last?  Target maps to
-the brief's *Travel Time Variability* reliability metric. Here ``reason`` IS a
-valid predictor (it is known at the moment a delay is logged).
+Compares FOUR regressors (Linear, Decision Tree, Random Forest, GBT) — matching
+the reference report's model set — to predict delay duration in minutes (the
+brief's Travel-Time Variability metric).
 
-Three models compared: LinearRegression, RandomForestRegressor, GBTRegressor.
-Metrics: RMSE, MAE, R2  (+ training time -> model-efficiency).
+Persists: metrics JSON (all 4 models), the best model, a test-prediction sample
+(actual/predicted) and feature importances — all consumed by src/report_figures.py.
 
 Run:  .venv/bin/python src/pipeline_05_ml_regression.py
 """
@@ -19,24 +19,16 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import seaborn as sns
-
 from pyspark.sql import functions as F
 from pyspark.ml import Pipeline
 from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
-from pyspark.ml.regression import (LinearRegression, RandomForestRegressor,
-                                   GBTRegressor)
+from pyspark.ml.regression import (LinearRegression, DecisionTreeRegressor,
+                                   RandomForestRegressor, GBTRegressor)
 from pyspark.ml.evaluation import RegressionEvaluator
 
 from config.spark_config import get_spark
-from src.utils import PROCESSED_PARQUET, OUTPUTS, MODELS, save_fig
-
-sns.set_theme(style="whitegrid")
+from src.utils import PROCESSED_PARQUET, OUTPUTS, MODELS
 
 CAT_COLS = ["operator_bucketed", "boro", "run_type", "reason", "time_band",
             "season", "school_age"]
@@ -51,10 +43,9 @@ def prepare(df):
     top_ops = [r["operator"] for r in
                (df.groupBy("operator").count()
                   .orderBy(F.desc("count")).limit(TOP_N_OPERATORS).collect())]
-    df = df.withColumn(
+    return df.withColumn(
         "operator_bucketed",
         F.when(F.col("operator").isin(top_ops), F.col("operator")).otherwise("OTHER"))
-    return df
 
 
 def feature_pipeline() -> Pipeline:
@@ -81,8 +72,7 @@ def evaluate(preds, name, train_s) -> dict:
                                    metricName=metric).evaluate(preds)
     rmse, mae, r2 = ev("rmse"), ev("mae"), ev("r2")
     m = {"model": name, "rmse": rmse, "mae": mae, "r2": r2,
-         "train_seconds": round(train_s, 2),
-         "model_efficiency_rmse_per_s": round(rmse / train_s, 3)}
+         "train_seconds": round(train_s, 2)}
     print(f"[eval] {name:<24} RMSE={rmse:.2f}  MAE={mae:.2f}  R2={r2:.3f}  ({train_s:.1f}s)")
     return m
 
@@ -99,12 +89,14 @@ def main():
     te = fp.transform(test).cache()
 
     models = {
-        "LinearRegression": LinearRegression(featuresCol="features", labelCol=LABEL,
-                                             maxIter=50, regParam=0.1, elasticNetParam=0.1),
-        "RandomForestRegressor": RandomForestRegressor(featuresCol="features", labelCol=LABEL,
-                                                       numTrees=80, maxDepth=10, seed=42),
-        "GBTRegressor": GBTRegressor(featuresCol="features", labelCol=LABEL,
-                                     maxIter=40, maxDepth=5, seed=42),
+        "Linear Regression": LinearRegression(featuresCol="features", labelCol=LABEL,
+                                              maxIter=50, regParam=0.1, elasticNetParam=0.1),
+        "Decision Tree": DecisionTreeRegressor(featuresCol="features", labelCol=LABEL,
+                                               maxDepth=10, seed=42),
+        "Random Forest": RandomForestRegressor(featuresCol="features", labelCol=LABEL,
+                                               numTrees=80, maxDepth=10, seed=42),
+        "Gradient Boosting": GBTRegressor(featuresCol="features", labelCol=LABEL,
+                                          maxIter=40, maxDepth=5, seed=42),
     }
 
     results, fitted = [], {}
@@ -118,58 +110,32 @@ def main():
 
     best_name = min(results, key=lambda r: r["rmse"])["model"]
     best_model, best_preds = fitted[best_name]
+    print(f"[best] {best_name}")
 
-    # Fig 12 — predicted vs actual (best model, sample)
-    pdf = best_preds.select(LABEL, "prediction").sample(0.03, seed=1).toPandas()
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
-    ax.scatter(pdf[LABEL], pdf["prediction"], s=4, alpha=0.15, color="#2b6cb0")
-    lim = [0, 185]
-    ax.plot(lim, lim, "r--", alpha=0.6)
-    ax.set_xlim(lim); ax.set_ylim(lim)
-    ax.set_title(f"Figure 12. Predicted vs Actual Delay — {best_name}",
-                 fontsize=11, fontweight="bold")
-    ax.set_xlabel("Actual delay (min)"); ax.set_ylabel("Predicted delay (min)")
-    save_fig(fig, "fig12_pred_vs_actual.png"); plt.close(fig)
+    # save a test-prediction sample for evaluation figures
+    pred_pd = (best_preds.select(F.col(LABEL).alias("actual"), "prediction")
+                         .sample(0.05, seed=1).limit(20000).toPandas())
+    pred_pd["residual"] = pred_pd["actual"] - pred_pd["prediction"]
+    pred_pd["abs_error"] = pred_pd["residual"].abs()
+    pred_pd.to_csv(OUTPUTS / "regression_predictions.csv", index=False)
+    print(f"[save] {len(pred_pd)} test predictions -> regression_predictions.csv")
 
-    # Fig 13 — residual distribution
-    pdf["residual"] = pdf[LABEL] - pdf["prediction"]
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    sns.histplot(pdf["residual"], bins=50, kde=True, color="#dd6b20", ax=ax)
-    ax.axvline(0, color="k", ls="--", alpha=0.5)
-    ax.set_title(f"Figure 13. Residual Distribution — {best_name}",
-                 fontsize=11, fontweight="bold")
-    ax.set_xlabel("Residual (actual - predicted) min")
-    save_fig(fig, "fig13_residuals.png"); plt.close(fig)
-
-    # Fig 14 — model comparison (RMSE / MAE)
-    rdf = pd.DataFrame(results).set_index("model")[["rmse", "mae"]]
-    fig, ax = plt.subplots(figsize=(7, 4.2))
-    rdf.plot(kind="bar", ax=ax, color=["#3182ce", "#e53e3e"])
-    ax.set_title("Figure 14. Regression Model Comparison (lower is better)",
-                 fontsize=12, fontweight="bold")
-    ax.set_ylabel("Minutes"); ax.set_xlabel("")
-    ax.set_xticklabels(rdf.index, rotation=12, fontsize=8)
-    save_fig(fig, "fig14_regression_comparison.png"); plt.close(fig)
-
-    # Fig 15 — feature importance (best tree model)
+    # feature importances (best tree model)
+    importances = []
     if hasattr(best_model, "featureImportances"):
         names = feature_names(te, "features")
         imp = best_model.featureImportances.toArray()
-        top = pd.DataFrame({"feature": names, "importance": imp}) \
-            .sort_values("importance", ascending=False).head(15)
-        fig, ax = plt.subplots(figsize=(7.5, 5))
-        sns.barplot(data=top, y="feature", x="importance", color="#2f855a", ax=ax)
-        ax.set_title(f"Figure 15. Top-15 Feature Importances — {best_name}",
-                     fontsize=11, fontweight="bold")
-        ax.set_xlabel("Importance"); ax.set_ylabel("")
-        save_fig(fig, "fig15_feature_importance.png"); plt.close(fig)
+        importances = sorted(
+            [{"feature": n, "importance": float(v)} for n, v in zip(names, imp)],
+            key=lambda x: -x["importance"])[:12]
 
     out = {"task": "regression_delay_minutes", "n_rows": df.count(),
-           "results": results, "best_model": best_name}
+           "results": results, "best_model": best_name,
+           "feature_importances": importances}
     with open(OUTPUTS / "regression_metrics.json", "w") as fh:
         json.dump(out, fh, indent=2)
-    best_model.write().overwrite().save(str(MODELS / f"reg_{best_name}"))
-    print(f"\n[done] best regressor = {best_name}; metrics -> regression_metrics.json")
+    best_model.write().overwrite().save(str(MODELS / f"reg_{best_name.replace(' ', '_')}"))
+    print(f"[done] metrics + importances -> regression_metrics.json")
     spark.stop()
 
 

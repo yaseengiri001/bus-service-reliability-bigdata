@@ -29,3 +29,4 @@ database/bus_reliability_dump.sql
 .DS_Store
 Thumbs.db
 docs/report.html
+docs/report_build.html

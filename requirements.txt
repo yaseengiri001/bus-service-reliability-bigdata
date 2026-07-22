@@ -17,3 +17,10 @@ plotly>=5.18.0
 
 # Interactive dashboard (localhost)
 streamlit>=1.30.0
+
+# ── Report generation tooling ─────────────────────────────────────────
+scipy>=1.11.0           # Q-Q plot / residual statistics
+markdown>=3.5           # report Markdown -> HTML
+pygments>=2.17          # syntax-highlighted code screenshots
+playwright>=1.40        # dashboard screenshots (channel="chrome", no browser download)
+weasyprint>=60          # HTML -> PDF (macOS native deps: brew install pango gdk-pixbuf libffi)

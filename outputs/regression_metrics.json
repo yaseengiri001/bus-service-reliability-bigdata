@@ -3,29 +3,83 @@
   "n_rows": 1039711,
   "results": [
     {
-      "model": "LinearRegression",
+      "model": "Linear Regression",
       "rmse": 16.42068894362301,
       "mae": 11.925623405113381,
       "r2": 0.3588034813523121,
-      "train_seconds": 4.81,
-      "model_efficiency_rmse_per_s": 3.412
+      "train_seconds": 3.77
     },
     {
-      "model": "RandomForestRegressor",
+      "model": "Decision Tree",
+      "rmse": 14.384086587079736,
+      "mae": 9.949100723815285,
+      "r2": 0.507991071048556,
+      "train_seconds": 1.96
+    },
+    {
+      "model": "Random Forest",
       "rmse": 14.192163582336786,
       "mae": 10.044280959816293,
       "r2": 0.521032965482952,
-      "train_seconds": 72.36,
-      "model_efficiency_rmse_per_s": 0.196
+      "train_seconds": 30.82
     },
     {
-      "model": "GBTRegressor",
+      "model": "Gradient Boosting",
       "rmse": 14.336983030116349,
       "mae": 9.941998037830727,
       "r2": 0.5112081574151304,
-      "train_seconds": 21.57,
-      "model_efficiency_rmse_per_s": 0.665
+      "train_seconds": 14.47
     }
   ],
-  "best_model": "RandomForestRegressor"
+  "best_model": "Random Forest",
+  "feature_importances": [
+    {
+      "feature": "operator_bucketed_oh_PRIDE TRANSPORTATION",
+      "importance": 0.34278568424086586
+    },
+    {
+      "feature": "year",
+      "importance": 0.17303241442380063
+    },
+    {
+      "feature": "students_on_bus",
+      "importance": 0.07075177007850288
+    },
+    {
+      "feature": "boro_oh_Bronx",
+      "importance": 0.04428181461078797
+    },
+    {
+      "feature": "operator_bucketed_oh_OTHER",
+      "importance": 0.04169996800098521
+    },
+    {
+      "feature": "operator_bucketed_oh_L & M BUS CORP",
+      "importance": 0.03877994373270845
+    },
+    {
+      "feature": "operator_bucketed_oh_HOYT TRANSPORTATION CORP",
+      "importance": 0.02439083333092024
+    },
+    {
+      "feature": "operator_bucketed_oh_DON THOMAS BUSES, INC",
+      "importance": 0.024045636260105318
+    },
+    {
+      "feature": "operator_bucketed_oh_LEESEL TRANSPORTATION CORP",
+      "importance": 0.020805279054359176
+    },
+    {
+      "feature": "operator_bucketed_oh_VAN TRANS LLC",
+      "importance": 0.01716410377995057
+    },
+    {
+      "feature": "reason_oh_Heavy Traffic",
+      "importance": 0.016540998397844994
+    },
+    {
+      "feature": "hour",
+      "importance": 0.014271109322823142
+    }
+  ]
 }
