@@ -10,15 +10,15 @@ The platform demonstrates genuine big-data engineering — 8-partition paralleli
 
 The project builds a predictive analytics system for **New York City school-bus services** using historical breakdown and delay records. It addresses the problem of **unpredictable service reliability** — breakdowns and delays that disrupt passengers and complicate operator oversight. Using Apache Spark and PySpark, the pipeline spans data ingestion, preprocessing, feature engineering, machine learning and visualisation, producing both a breakdown-risk classifier and a delay-duration regressor that drive an interactive prediction dashboard for smarter urban mobility.
 
-![](diagrams/concept_bigdata.png)
-*Big Data Introduction*
+![](diagrams/fig_intro_datascale.png)
+*Dataset at a glance — the scale and scope of the NYC bus-incident data used in this project.*
 
 ### Problem Statement
 
 Urban bus networks are central to daily city life, yet they are frequently affected by unpredictability. For passengers, uncertain travel time and unexpected breakdowns cause missed connections and long waits; for authorities, distinguishing severe breakdowns from minor delays and anticipating delay duration is difficult. This uncertainty is driven by many factors — traffic, time of day, operator, route and vehicle condition — making reliable oversight a complex task for transport operators.
 
-![](diagrams/concept_problem.png)
-*Problem Statement*
+![](diagrams/fig_problem_incidents.png)
+*Reported incidents by year and incident-type share — quantifying the scale of the reliability problem (note the COVID-19 dip in 2020).*
 
 ### Purpose and Scope
 
@@ -58,8 +58,8 @@ This project synthesises these strands: cost-sensitive tree ensembles and a Rand
 
 The primary data source is **New York City Open Data's "Bus Breakdown and Delays"** dataset (identifier `ez4e-fazm`), released under a **CC0 Public Domain** licence. It records every breakdown or delay logged by NYC school-bus vendors in real time and contains **21 attributes** spanning temporal, operator, route, borough, reason and outcome fields across 2015–2026. The same dataset is mirrored on Kaggle (`mattop/new-york-city-bus-breakdown-and-delays`); the authoritative NYC Open Data source was used because it requires no login and provides a larger, more current snapshot.
 
-![](diagrams/concept_datasource.png)
-*Data Source*
+![](diagrams/fig_datasource_overview.png)
+*Data Source — the 21 columns of the NYC "Bus Breakdown and Delays" dataset, grouped by category.*
 
 ### Tools & Technologies
 
