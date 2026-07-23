@@ -14,6 +14,7 @@ from __future__ import annotations
 import html
 import re
 import subprocess
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -117,6 +118,25 @@ def lof_openxml(figs, fpage):
     return '\n```{=openxml}\n' + "".join(parts) + '\n```\n'
 
 
+def prevent_row_splits(docx: Path):
+    """Stop table rows from breaking across page boundaries (cantSplit)."""
+    tmp = docx.with_suffix(".tmp.docx")
+    with zipfile.ZipFile(docx) as zin, \
+         zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.namelist():
+            data = zin.read(item)
+            if item == "word/document.xml":
+                s = data.decode("utf-8")
+                # rows that already have <w:trPr>: add cantSplit as first child
+                s = re.sub(r"(<w:trPr>)(?!<w:cantSplit\s*/>)", r"\1<w:cantSplit/>", s)
+                # rows without a <w:trPr>: create one
+                s = re.sub(r"(<w:tr\b[^>]*>)(?!<w:trPr>)",
+                           r"\1<w:trPr><w:cantSplit/></w:trPr>", s)
+                data = s.encode("utf-8")
+            zout.writestr(item, data)
+    tmp.replace(docx)
+
+
 def assemble(body, headings, figs, hpage, fpage):
     doc = (cover_openxml() + PAGEBREAK
            + toc_openxml(headings, hpage) + PAGEBREAK
@@ -125,6 +145,7 @@ def assemble(body, headings, figs, hpage, fpage):
     subprocess.run(["pandoc", str(TMP), "-o", str(OUT),
                     "--resource-path", str(ROOT / "docs"),
                     "--from=markdown+raw_attribute"], check=True)
+    prevent_row_splits(OUT)
 
 
 def render_pdf():
