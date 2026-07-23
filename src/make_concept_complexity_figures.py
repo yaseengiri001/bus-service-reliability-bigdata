@@ -137,10 +137,16 @@ def security_fig():
              ("Read-only Model Load", "Restricted file permissions", "#8e44ad"),
              ("Localhost Only", "127.0.0.1 — no public exposure", "#2980b9"),
              ("Open CC0 Data", "No PII / GDPR data-minimisation", "#27ae60")]
+    from matplotlib.patches import Arc
     for i, (title, sub, color) in enumerate(items):
         y = 5.0 - i * 0.95
         ax.add_patch(Circle((1.1, y), 0.32, facecolor=color, edgecolor="white"))
-        ax.text(1.1, y, "🔒", ha="center", va="center", fontsize=11)
+        # simple white padlock icon (body + shackle) — renders reliably
+        ax.add_patch(FancyBboxPatch((1.1 - 0.085, y - 0.11), 0.17, 0.15,
+                     boxstyle="round,pad=0.005,rounding_size=0.02",
+                     facecolor="white", edgecolor="none"))
+        ax.add_patch(Arc((1.1, y + 0.03), 0.13, 0.16, theta1=0, theta2=180,
+                     color="white", lw=2.2))
         ax.text(1.8, y+0.12, title, ha="left", va="center", fontsize=10, fontweight="bold", color="#2c3e50")
         ax.text(1.8, y-0.22, sub, ha="left", va="center", fontsize=8, color="#555")
     _save(fig, "concept_security.png")
