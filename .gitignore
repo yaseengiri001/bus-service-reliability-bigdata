@@ -30,3 +30,7 @@ database/bus_reliability_dump.sql
 Thumbs.db
 docs/report.html
 docs/report_build.html
+
+# Word/Office lock & temp files
+~$*
+.~lock.*#
